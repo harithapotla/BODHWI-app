@@ -1,0 +1,19 @@
+@import '../../index.css';
+.wrapper{
+    width:500px !important;
+}
+
+.check-in{
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    box-shadow: 0px 0px 10px 5px #20c997;
+
+}
+.check-out{
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    box-shadow: 0px 0px 10px 5px #ffc107;
+
+}
