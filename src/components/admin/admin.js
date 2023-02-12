@@ -1,74 +1,175 @@
 import React, { useState } from "react";
 import { Button, Modal, Table } from "react-bootstrap";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { logIn } from "../redux/slice";
 
 const AdminComponenet = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const tenantsData = useSelector((store) => store.counter.tenantsData);
+  const loggedUsername =
+    useSelector((store) => store.counter.loggedUsername) ||
+    localStorage.getItem("loggedUsername") != undefined
+      ? localStorage.getItem("loggedUsername")
+      : "";
+
   const [modalData, setModalData] = useState({
     show: false,
-    data: [],
-    tenantName:''
+    data: {},
+    tenantName: "",
   });
+  var todayObj = new Date();
+  var today =
+    todayObj.getDate() +
+    "/" +
+    (todayObj.getMonth() + 1) +
+    "/" +
+    todayObj.getFullYear();
+  var time = todayObj.getHours() + ":" + todayObj.getMinutes();
 
-  const closeModal = ()=>{setModalData({...modalData, show:false})}
-  const openModal = (name)=>{
-    setModalData({...modalData, show:true, tenantName: name, data:[]})}
+
+  const closeModal = () => {
+    setModalData({ ...modalData, show: false });
+  };
+  const openModal = (name, index) => {
+    const data = tenantsData[index];
+    setModalData({ ...modalData, show: true, tenantName: name, data: data });
+  };
+  const logOut = () => {
+    localStorage.clear();
+    dispatch(logIn({ username: null }));
+    navigate("/login");
+  };
+
   return (
-    <div>
-      <h3> details of all the tenents with </h3>
-      <Table responsive>
-        <thead>
-          <tr>
-            <th> Name </th>
-            <th> check-in </th>
-            <th> check-out </th>
-            <th> break-fast </th>
-            <th> lunch </th>
-            <th> dinner </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr onClick={()=>openModal("vivek")}>
-            <td> Name </td>
-            <td> check-in </td>
-            <td> check-out </td>
-            <td> break-fast </td>
-            <td> lunch </td>
-            <td> dinner </td>
-          </tr>
-        </tbody>
-      </Table>
-      <Modal size="xl" aria-labelledby="contained-modal-title-vcenter" centered show={modalData.show} onHide={closeModal}>
-        <Modal.Header closeButton>
-          <Modal.Title id="contained-modal-title-vcenter">
-           {modalData.tenantName}'s time sheet
-          </Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
+    <React.Fragment>
+      <div className={`text-end header`} onClick={logOut}>
+        {loggedUsername}
+      </div>
+      <div className="p-3">
+        <h3 className="text-center">
+          {" "}
+          details of all the tenents for {today}{" "}
+        </h3>
         <Table responsive>
-        <thead>
-          <tr>
-            <th> date </th>
-            <th> check-in </th>
-            <th> check-out </th>
-            <th> break-fast </th>
-            <th> lunch </th>
-            <th> dinner </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td> vivek </td>
-            <td> 8:00 </td>
-            <td> 20:00</td>
-            <td> 7:00 - 8:00 </td>
-            <td> 13:00 - 14:00</td>
-            <td> 20:00 - 21:00 </td>
-          </tr>
-        </tbody>
-      </Table>
-        </Modal.Body>
-       
-      </Modal>
-    </div>
+          <thead>
+            <tr>
+              <th> Name </th>
+              <th> check-in </th>
+              <th> check-out </th>
+              <th> break-fast </th>
+              <th> lunch </th>
+              <th> dinner </th>
+            </tr>
+          </thead>
+          <tbody>
+            {tenantsData &&
+              tenantsData.map((tenant, index) => {
+                const todayIndex = tenant.timesheet.findIndex(
+                  (record) => record.date == today
+                );
+                const todayMessIndex = tenant.messAvailData.findIndex(
+                  (record) => record.date == today
+                );
+                return (
+                  <tr
+                    key={index}
+                    onClick={() => openModal(tenant.Tname, index)}
+                  >
+                    <td>{tenant.Tname}</td>
+                    <td>
+                      {todayIndex > -1
+                        ? tenant.timesheet[todayIndex].checkIn
+                        : "Yet to check in"}
+                    </td>
+                    <td>
+                      {todayIndex > -1
+                        ? tenant.timesheet[todayIndex].checkOut
+                        : "Yet to check out"}
+                    </td>
+                    <td>
+                      {todayMessIndex > -1
+                        ? tenant.messAvailData[todayMessIndex].br
+                        : "Yet to choose"}
+                    </td>
+                    <td>
+                      {todayMessIndex > -1
+                        ? tenant.messAvailData[todayMessIndex].lunch
+                        : "Yet to choose"}
+                    </td>
+                    <td>
+                      {todayMessIndex > -1
+                        ? tenant.messAvailData[todayMessIndex].dinner
+                        : "Yet to choose"}
+                    </td>
+                  </tr>
+                );
+              })}
+          </tbody>
+        </Table>
+        <Modal
+          size="xl"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+          show={modalData.show}
+          onHide={closeModal}
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">
+              {modalData.tenantName}'s time sheet
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <Table responsive>
+              <thead>
+                <tr>
+                  <th> date </th>
+                  <th> check-in </th>
+                  <th> check-out </th>
+                  <th> break-fast </th>
+                  <th> lunch </th>
+                  <th> dinner </th>
+                </tr>
+              </thead>
+              <tbody>
+                {modalData &&
+                  modalData.data &&
+                  modalData.data.timesheet &&
+                  modalData.data.timesheet.map((record, index) => {
+                    const messIndex = modalData.data.messAvailData.findIndex(
+                      (messAvail) => messAvail.date === record.date
+                    );
+                    console.log(modalData.data.messAvailData[messIndex]);
+                    return (
+                      <tr key={index}>
+                        <td>{record.date}</td>
+                        <td>{record.checkIn}</td>
+                        <td>{record.checkOut}</td>
+                        <td>
+                          {messIndex > -1
+                            ? modalData.data.messAvailData[messIndex].bf
+                            : "not choosen"}
+                        </td>
+                        <td>
+                          {messIndex > -1
+                            ? modalData.data.messAvailData[messIndex].lunch
+                            : "not choosen"}
+                        </td>
+                        <td>
+                          {messIndex > -1
+                            ? modalData.data.messAvailData[messIndex].dinner
+                            : "not choosen"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+              </tbody>
+            </Table>
+          </Modal.Body>
+        </Modal>
+      </div>
+    </React.Fragment>
   );
 };
 

@@ -1,6 +1,8 @@
 @import '../../index.css';
+
 .wrapper{
-    width:500px !important;
+    padding-right:100px;
+    padding-left:100px;
 }
 
 .check-in{
@@ -16,4 +18,20 @@
     border-radius: 50%;
     box-shadow: 0px 0px 10px 5px #ffc107;
 
+}
+.Info-wrapper{
+    height: 50px
+}
+.header{
+    height: 50px;
+    font-size: 24px;
+    padding-top: 8px;
+    padding-right: 30px;
+}
+.table-responsive{
+    border: 2px solid #0d6efd;
+    border-radius: 0.5rem;
+}
+thead{
+    background: #0d6efd
 }
