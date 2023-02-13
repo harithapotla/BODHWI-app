@@ -827,7 +827,7 @@ export var state = {
       ],
     },
     {
-      Tname: "a",
+      Tname: "srilekha",
       password: "12345678",
       timesheet: [
         {
@@ -902,7 +902,7 @@ export var state = {
       ],
     },
     {
-      Tname: "b",
+      Tname: "sivannarayana",
       password: "12345678",
       timesheet: [
         {
